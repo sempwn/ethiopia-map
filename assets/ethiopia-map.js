@@ -192,7 +192,7 @@ function drawDosesTimeLine(){ //TODO: fix this function.
     }
   };
 
-  d3.json('/assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaNew.json',function(err,data){
     for (var scenInd = 0; scenInd < n; scenInd ++)
     {
       ScenarioIndex.setIndex(scenInd);
@@ -249,7 +249,7 @@ function drawPrevalenceTimeLine(){
     }
   };
 
-  d3.json('/assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaNew.json',function(err,data){
     for (var scenInd = 0; scenInd < n; scenInd ++)
     {
       ScenarioIndex.setIndex(scenInd);
@@ -317,7 +317,7 @@ function drawMapBoxPlot(){
 function createTimeLine(){
   var tooltip = d3.select('#tooltip');
   var res = d3.select('#map-outputs').select('h4');
-  d3.json('/assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaNew.json',function(err,data){
     d3.select('#slider1').call(d3.slider().axis(true).min(0).max(20).step(1)
                                  .on("slide",function(evt,value){
                                    var scenInd = ScenarioIndex.getIndex();
@@ -515,7 +515,7 @@ function runSimClick(){
 }
 
 function drawMap() {
-  d3.json('/assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaNew.json',function(err,data){
     d3.selectAll('path')
       .attr("class", function(d,i) {
         if(i<glob_prevs.length){
@@ -611,8 +611,8 @@ $(document).ready(function(){
 
 
   queue()
-      .defer(d3.json, "/assets/EthiopiaNew.json") //ETH_IUs.json
-      .defer(d3.csv, "/assets/ETH_prev.csv")
+      .defer(d3.json, "./assets/EthiopiaNew.json") //ETH_IUs.json
+      .defer(d3.csv, "./assets/ETH_prev.csv")
       .await(ready);
 
   //d3.csv('/assets/ETH_prev.csv',function(d){ glob_prevs = d}); // for debugging purposes.

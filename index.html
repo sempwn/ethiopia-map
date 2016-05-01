@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+   <head>
+     <title>TRANSFIL</title>
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+     <link href="/assets/c3/c3.css" rel="stylesheet" type="text/css">
+     <link href="/assets/css/bootstrap-slider.css" rel="stylesheet" type="text/css">
+     <link rel="stylesheet" href="http://css-spinners.com/css/spinner/spinner.css" type="text/css">
+     <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+     <link rel="stylesheet" href="/assets/css/sticky-footer.css" type="text/css">
+     <link rel="stylesheet" href="/assets/css/d3.slider.css" type="text/css">
+     <style>
+
+        .counties {
+          fill: none;
+        }
+
+        .states {
+          fill: none;
+          stroke: #fff;
+          stroke-linejoin: round;
+        }
+
+        .q0-9 { fill:rgb(247,251,255); }
+        .q1-9 { fill:rgb(222,235,247); }
+        .q2-9 { fill:rgb(198,219,239); }
+        .q3-9 { fill:rgb(158,202,225); }
+        .q4-9 { fill:rgb(107,174,214); }
+        .q5-9 { fill:rgb(66,146,198); }
+        .q6-9 { fill:rgb(33,113,181); }
+        .q7-9 { fill:rgb(8,81,156); }
+        .q8-9 { fill:rgb(8,48,107); }
+
+        .qTAS0-1 {fill: #EA9999; }
+        .qTAS1-1 {fill: #669F66; }
+
+        .top-buffer { margin-top:20px; }
+        .bottom-buffer { margin-bottom:20px; }
+
+    </style>
+
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="/assets/c3/c3.min.js"></script>
+    <script src="/assets/js/parallel.js"></script>
+      <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/assets/main2.js"></script>
+    <script src="/assets/js/sim.js"></script>
+    <script src="/assets/model2.js"></script>
+    <script src="/assets/js/math.min.js"></script>
+    <script src="/assets/js/d3.slider.js"></script>
+    <script src="/assets/ethiopia-map.js"></script>
+    <script src="/assets/js/bootstrap-slider.js"></script>
+
+   </head>
+   <body>
+    <div class="container-fluid">
+     <div class="row">
+       <div role="tabpanel">
+
+
+
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+          <div role="tabpanel" class="tab-pane active" id="home">
+            <div class="row">
+              <div class="col-md-10 col-md-offset-1 text-center">
+                <h2>Ethiopia LF Transmission Projections - DEMO ONLY</h2>
+              </div>
+            </div>
+            <div class="row">
+
+              <div class="col-md-6">
+                <h3 class="text-center" id="scenario-title">Scenario Overview</h3>
+                <div class="form-group">
+                  <label for="sel-stat">Select statistic:</label>
+                  <select class="form-control" id="sel-stat">
+                    <option>prevalence</option>
+                    <option>passed pre-TAS</option>
+                    <option>doses given</option>
+                  </select>
+                </div>
+
+                <div id="map">
+                </div>
+                <div id='map-outputs' class="text-center">
+                  <div class="row">
+                    <div class="bottom-buffer col-md-10 col-md-offset-1" id="slider-div">
+                      <div id="slider1"></div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <h4></h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6" id="mda-table-box">
+                <h3 class="text-center">Scenario Comparisons</h3>
+                <div id="map-boxplot">
+
+                </div>
+                <div class="col-md-10 col-mdoffset-1" >
+                  <div class="form-group" id="sel-comp-stat-div">
+                    <label for="sel-comp-stat">Select statistic:</label>
+                    <select class="form-control" id="sel-comp-stat">
+                      <option value = 'rounds'>no. rounds to pre-TAS</option>
+                      <option value = 'doses'>no. doses</option>
+                      <option value = 'prev'>prevalence</option>
+                    </select>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-lg btn-block" id="add-new-scenario">Add Scenario</button>
+                  <div id="scenario-button-group"></div>
+                </div>
+              </div>
+              <div class="col-md-4" style="display: none;">
+                <img src="./assets/img/Tanzania_example_2.png" class="img-responsive" alt="Responsive image">
+                &nbsp;
+                <button type="button" class="btn btn-danger">High</button>
+                <button type="button" class="btn btn-warning">Medium</button>
+                <button type="button" class="btn btn-primary">Low</button>
+              </div>
+
+            </div>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="setting">
+              <div class="col-md-6 col-md-offset-3">
+                <h2 class="text-center">Setting panel</h2>
+                <div class="panel-group" id="accordion2" role="tablist" aria-multiselectable="true">
+                  <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                      <h4 class="panel-title">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                          Vector Species
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                      <div class="panel-body">
+
+                        <div class="radio">
+                          <label class="text-center">
+                            <img src="/assets/img/Anopheles.jpg" class="img-responsive img-thumbnail" style="max-width: 250px; max-height: 200px;" alt="Anopheles image">
+                            <input type="radio" name="speciesRadios" id="optionsRadios1" value="0" checked>
+                            Anopheles
+                          </label>
+                        </div>
+                        <div class="radio">
+                          <label class="text-center">
+                            <img src="/assets/img/Culex.jpg" class="img-responsive img-thumbnail" style="max-width: 250px; max-height: 200px;" alt="Culex image">
+                            <input type="radio" name="speciesRadios" id="optionsRadios2" value="1">
+                            Culex
+                          </label>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne2">
+                      <h4 class="panel-title">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne2" aria-expanded="true" aria-controls="collapseOne">
+                          Baseline prevalence
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseOne2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne2">
+                      <div class="panel-body">
+                        <div class="form-horizontal">
+                          <div class="form-group">
+                            <label for="endemicity" class="col-sm-2">Microfilaraemia prevalence</label>
+                            <div class="col-sm-10">
+                              <input id="endemicity" data-slider-id='endemicitySlider' type="text" data-slider-min="9.0" data-slider-max="18.0" data-slider-step="0.5" data-slider-value="10"/>
+                            </div>
+                          </div>
+                        </div>
+                        <p>The mf prevalence in the population before intervention occurs. Due to the stochastic nature of the model this is a prevalence averaged over many independent runs and so should be treated as an approximation only.</p>
+
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default" style="display: none;">
+                    <div class="panel-heading" role="tab" id="headingTwo2">
+                      <h4 class="panel-title">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo2" aria-expanded="false" aria-controls="collapseTwo2">
+                          Vector life history
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseTwo2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo2">
+                      <div class="panel-body">
+                        <form class="form-horizontal">
+                          <div class="form-group">
+                            <label for="vectorialCapacity" class="col-sm-2 control-label">Vector Capacity</label>
+                            <div class="col-sm-10">
+                              <input id="vectorialCapacity" data-slider-id='vectorialCapacitySlider' type="text" data-slider-min="0" data-slider-max="2" data-slider-step="0.1" data-slider-value="1"/>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="vectorialCompetence" class="col-sm-2 control-label">Vector Competence</label>
+                            <div class="col-sm-10">
+                              <input id="vectorialCompetence" data-slider-id='vectorialCompetenceSlider' type="text" data-slider-min="0" data-slider-max="2" data-slider-step="0.1" data-slider-value="1"/>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="vectorialDeathRate" class="col-sm-2 control-label">Death Rate</label>
+                            <div class="col-sm-10">
+                              <input id="vectorialDeathRate" data-slider-id='vectorialDeathRateSlider' type="text" data-slider-min="0" data-slider-max="2" data-slider-step="0.1" data-slider-value="1"/>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+          </div>
+
+
+          <div role="tabpanel" class="tab-pane" id="adherence">
+              <div class="col-md-4 col-md-offset-4">
+                <h2 class="text-center">Systematic adherence panel</h2>
+                <form>
+                  <div class="form-group">
+                    <label for="inputMDARounds">Systematic adherence</label>
+                    <div class="input-group">
+
+                      <input id="sysAdherence" data-slider-id='sysAdherenceSlider' type="text" data-slider-min="0" data-slider-max="1.0" data-slider-step="0.1" data-slider-value="0"/>
+
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="inputMDARounds">Bite-risk adherence correlation</label>
+                    <div class="input-group">
+
+                      <input id="brMda" data-slider-id='brMdaSlider' type="text" data-slider-min="0" data-slider-max="1.0" data-slider-step="0.1" data-slider-value="0"/>
+
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="inputMDARounds">bed-net and mda adherence correlation</label>
+                    <div class="input-group">
+
+                      <input id="bedNetMda" data-slider-id='bedNetMdaSlider' type="text" data-slider-min="0" data-slider-max="1.0" data-slider-step="0.1" data-slider-value="0"/>
+
+                    </div>
+                  </div>
+                </form>
+              </div>
+          </div>
+
+
+          <div role="tabpanel" class="tab-pane" id="mda">
+          </div>
+          <div role="tabpanel" class="tab-pane" id="rounds">
+              <div class="col-md-6 col-md-offset-3">
+                <h2 class="text-center">Calculate no. rounds for current strategy</h2>
+                <p>
+                  For current settings selected calculate the number of rounds required to achieve the
+                  target of less than 1&#37; prevalence. Multiple scenarios can be run and compared. In order to do
+                  this first select the strategy you would like to consider, select the number of iterations used
+                  to perform the calculation and press the run button. This will produce a boxplot of the number
+                  of rounds as well as a summary of the current setting below. To compare to another setting, simply
+                  change the parameters in the tabs and press run again, the new setting will be plotted alongside
+                  the previously calculated ones. To reset the graph, press the reset button.
+                </p>
+                <p>
+                  <small>
+                    Note that if the number of rounds needed to achieve the threshold exceeds 20, they will not be included
+                    in the results. This may lead to a blank graph if none of the runs achieves the threshold within 20 years.
+                  </small>
+                </p>
+                <div class="form">
+                  <div class="btn-group">
+                    <button id="run-rounds" class="btn btn-default">Run Simulation</button>
+                  </div>
+                  <div class="btn-group">
+                    <button id="reset-rounds" class="btn btn-warning">Reset Scenarios</button>
+                  </div>
+                  <div class="form-group">
+                    <label for="bedNetCoverage">No. simulation runs</label>
+                    <div class="input-group">
+                        <input id="roundSims" data-slider-id='roundSimsSlider' type="text" data-slider-min="10" data-slider-max="100" data-slider-step="1" data-slider-value="20"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="progress" id="rounds-progress-bar">
+                  <div id ="rounds-progress-bar-bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <span class="sr-only">progress...</span>
+                  </div>
+                </div>
+                <p id="roundsTest"></p>
+                <div class="singleSimGroup" id="boxplotChart"></div>
+
+                <div class="panel-group" id="rounds-scenario-accordion" role="tablist" aria-multiselectable="true">
+                </div>
+              </div>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="model">
+              <div class="col-md-6 col-md-offset-3">
+                <h2 class="text-center">Simulation</h2>
+                <div class="form">
+                  <div class="form-group">
+                    <button id="test-data" class="btn btn-standard">Run simulation</button>
+                  </div>
+                  <div class="form-group">
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" onclick="toggle('#model .multiSimGroup', this); toggleOff('#model .singleSimGroup',this);" id="mutliSimCheckBox"> Multiple simulations
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group multiSimGroup" id="multiSimSliderDiv">
+                    <label for="multiSim">No. of simulations</label>
+                    <div class="input-group">
+                        <input id="multiSim" data-slider-id='multiSimSlider' type="text" data-slider-min="1" data-slider-max="20" data-slider-step="1" data-slider-value="1"/>
+                    </div>
+                  </div>
+                  <div class="form-group" id="multiSimLoading">
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                        <span class="sr-only">progress...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="parameters-summary"></div>
+                <div id="test-data-result"></div>
+                <div id="graph"></div>
+                <div class="singleSimGroup" id="chart"></div>
+                <div class="singleSimGroup" id="plotlyChart"></div>
+                <div class="multiSimGroup" id="model__chart_mf"></div>
+                <div class="multiSimGroup" id="model__chart_wb"></div>
+                <div class="multiSimGroup" id="model__chart_L3"></div>
+              </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- Modal -->
+              <div class="modal fade" id="termsModal" role="dialog">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+
+                      <h4 class="modal-title">Terms &amp; conditions</h4>
+                    </div>
+                    <div class="modal-body">
+                      <p>TRANSFIL &copy; 2016, The University of Warwick (the "Software Model") </p>
+
+                      <p>The Software Model remains the property of the University of Warwick ("the University").</p>
+
+                       <p> The Software Model is distributed "AS IS" under this Licence solely for non-commercial use in the hope that it will be useful, but in order that the University as a charitable foundation protects its assets for the benefit of its educational and research purposes, the University makes clear that no condition is made or to be implied, nor is any warranty given or to be implied, as to the accuracy of the Software Model, or that it will be suitable for any particular purpose or for use under any specific conditions. Furthermore, the University disclaims all responsibility for the use which is made of the Software Model. It further disclaims any liability for the outcomes arising from using the Software Model. </p>
+
+                      <p>The Licensee agrees to indemnify the University and hold the University harmless from and against any and all claims, damages and liabilities asserted by third parties (including claims for negligence) which arise directly or indirectly from the use of the Software Model.</p>
+
+                      <p>No part of the Software Model may be reproduced, modified, transmitted or transferred in any form or by any means, electronic or mechanical, without the express permission of the University. You may be held legally responsible for any copyright infringement that is caused or encouraged by your failure to abide by these terms and conditions. </p>
+
+                      <p>You are not permitted under this Licence to use this Software Model commercially. Use for which any financial return is received shall be defined as commercial use, and includes (1) integration of all or part of the source code or the Software Model into a product for sale or license by or on behalf of Licensee to third parties or (2) use of the Software Model or any derivative of it for research with the final aim of developing software products for sale or license to a third party or (3) use of the Software Model or any derivative of it for research with the final aim of developing non-software products for sale or license to a third party, or (4) use of the Software Model to provide any service to an external organisation for which payment is received. If you are interested in using the Software Model commercially, please contact Warwick Ventures Limited("WVL"), the technology transfer company of the University, to negotiate a licence. Contact details are: ventures@warwick.ac.uk quoting reference. If you are in any doubt if your use constitutes commercial use, contact WVL:
+                      <a href="mailto:ventures@warwick.ac.uk">ventures@warwick.ac.uk</a></p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Accept Terms &amp; Conditions</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+    <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>Processing...</h1>
+            </div>
+            <div class="modal-body">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <span class="sr-only">progress...</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">Created by Michael Irvine. University of Warwick. &copy; 2015 <a href="./LICENSE">LICENSE</a><img src="/assets/img/NTD_MC.png" alt="NTD Modelling consortium" style="max-width:100px; margin-top: -7px; float:right; display: block;">
+        <img src="/assets/img/Warwick_logo.png" alt="NTD Modelling consortium" style="max-height:40px; margin-top: -7px; float:left; display: block;"></p>
+
+    </div>
+  </footer>
+  <!-- Modal Settings-->
+  <div class="modal fade" id="settings-modal"  role="dialog" aria-labelledby="settings-modal">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="settings-modal-label">Scenario settings</h4>
+        </div>
+        <div class="modal-body">
+          <div id="scenario-messages"></div>
+          <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                    Mass Drug Administration
+                  </a>
+                </h4>
+              </div>
+              <div id="collapse1" class="panel-collapse collapse in">
+                <div class="panel-body">
+
+
+
+                        <form>
+                          <div class="form-group hidden">
+                            <label for="inputMDARounds">Rounds of MDA</label>
+                            <div class="input-group">
+                              <div class="input-group-addon">#</div>
+                              <input type="text" class="form-control" id="inputMDARounds" placeholder="no. of rounds">
+                            </div>
+                            <small class="text-muted">For use when running simulations. Not included when calculating number of rounds.</small>
+                          </div>
+                          <div class="form-group">
+                            <label for="freqMDARounds">Frequency of Administration</label>
+                            <div class="input-group">
+
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaSixMonths" id="mdaSixMonthsRadios1" value="False" checked>
+                                  Treat annually
+                                </label>
+                              </div>
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaSixMonths" id="mdaSixMonthsRadios2" value="True">
+                                  Treat every six months
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="MDACoverage">Coverage (%)</label>
+                            <div class="input-group">
+                                <input id="MDACoverage" data-slider-id='MDACoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="mdaRegimen">Drug regimen</label>
+                            <div class="input-group" id="regimen-radio">
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios1" value="1" checked>
+                                  albendazole + ivermectin
+                                </label>
+                              </div>
+
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios2" value="2">
+                                  albendazole + diethylcarbamazine
+                                </label>
+                              </div>
+
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios3" value="3">
+                                  ivermectin
+                                </label>
+                              </div>
+
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios4" value="4">
+                                  ivermectin + albendazole + diethylcarbamazine
+                                </label>
+                              </div>
+                              <div class="radio">
+                                <label>
+                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios5" value="5">
+                                  custom
+                                </label>
+                              </div>
+                              <div class="form-group" id="custom-regimen-sliders">
+                                <label for="Macrofilaricide">Macrofilaricide (%)</label>
+                                <div class="input-group">
+                                    <input id="Macrofilaricide" data-slider-id='MacrofilaricideSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
+                                </div>
+                                <label for="Microfilaricide">Microfilaricide (%)</label>
+                                <div class="input-group">
+                                    <input id="Microfilaricide" data-slider-id='MicrofilaricideSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
+                                </div>
+                                <small class="text-muted">
+                                  Use sliders to control the total proportion of microfilariae and adult filariae cleared from an individual who has received a dose of the drug. The macrofilaricidal and microfilaricidal effects are assumed to occur immediately after
+                                  administration.
+                                </small>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+
+
+
+
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                    Vector Control
+                  </a>
+                </h4>
+              </div>
+              <div id="collapse2" class="panel-collapse collapse">
+                <div class="panel-body">
+
+
+
+                        <form>
+
+
+
+                          <div class="form-group">
+                            <label for="bedNetCoverage">Bed Net Coverage (%)</label>
+                            <div class="input-group">
+                                <input id="bedNetCoverage" data-slider-id='bedNetCoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                            </div>
+                          </div>
+                          <p>
+                            Coverage of bed nets during intervention. The intervention period is defined as the range of time underwhich MDA occurs. If it is desired to investigate the use of bed nets alone as an intervention for a period of time then this can be controlled through setting the rounds of MDA to the number of years desired and setting the MDA coverage to 0%. <small>Bed nets are assumed to affect an individual's monthly bite rate only.</small>
+                          </p>
+
+                          <div class="form-group">
+                            <label for="insecticideCoverage">Insecticide Coverage (%)</label>
+                            <div class="input-group">
+                                <input id="insecticideCoverage" data-slider-id='insecticideCoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                            </div>
+                          </div>
+                          <p>
+                            Coverage of insecticide use during intervention. The intervention period is defined as the range of time underwhich MDA occurs. If it is desired to investigate the use of bed nets alone as an intervention for a period of time then this can be controlled through setting the rounds of MDA to the number of years desired and setting the MDA coverage to 0%. <small>Insecticide is assumed to affect the vector to host ratio only.</small>
+                          </p>
+
+
+                        </form>
+
+
+
+
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="progress" id="map-progress-bar">
+            <div id ="map-progress-bar-bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+              <span class="sr-only">progress...</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="run_scenario">Run Scenario</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="new-scenario-accordian" style="display: none;">
+    <div class="panel panel-default">
+      <div class="panel-heading" role="tab" id="headingOne">
+        <h4 class="panel-title">
+          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            //title
+          </a>
+        </h4>
+      </div>
+      <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+        <div class="panel-body">
+          //body
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id ="new-alert" style="display: none;">
+    <div class="alert alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+    </div>
+  </div>
+  <div id="new-tab" style="display: none;">
+                  <div class="col-md-6 col-md-offset-3">
+                <h2 class="text-center" id="simulation-title">Simulation</h2>
+                <div class="form">
+                  <div class="form-group">
+                    <button id="test-data" class="btn btn-standard">Run simulation</button>
+                  </div>
+                  <div class="form-group">
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" id="mutliSimCheckBox"> Multiple simulations
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group multiSimGroup" id="multiSimSliderDiv">
+                    <label for="multiSim">No. of simulations</label>
+                    <div class="input-group">
+                        <input id="multiSim" data-slider-id='multiSimSlider' type="text" data-slider-min="1" data-slider-max="20" data-slider-step="1" data-slider-value="1"/>
+                    </div>
+                  </div>
+                  <div class="form-group" id="multiSimLoading">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                      <span class="sr-only">progress...</span>
+                    </div>
+                  </div>
+                </div>
+                <div id="parameters-summary"></div>
+                <div id="test-data-result"></div>
+                <div id="graph"></div>
+                <div class="singleSimGroup" id="chart"></div>
+                <div class="singleSimGroup" id="plotlyChart"></div>
+                <div class="multiSimGroup" id="chart_mf"></div>
+                <div class="multiSimGroup" id="chart_wb"></div>
+                <div class="multiSimGroup" id="chart_L3"></div>
+              </div>
+
+              <!-- Modal -->
+              <div class="modal fade" id="termsModal" role="dialog">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title">Terms &amp; conditions</h4>
+                    </div>
+                    <div class="modal-body">
+                      <p>TRANSFIL &copy; 2016, The University of Warwick (the "Software Model") </p>
+
+                      <p>The Software Model remains the property of the University of Warwick ("the University").</p>
+
+                       <p> The Software Model is distributed "AS IS" under this Licence solely for non-commercial use in the hope that it will be useful, but in order that the University as a charitable foundation protects its assets for the benefit of its educational and research purposes, the University makes clear that no condition is made or to be implied, nor is any warranty given or to be implied, as to the accuracy of the Software Model, or that it will be suitable for any particular purpose or for use under any specific conditions. Furthermore, the University disclaims all responsibility for the use which is made of the Software Model. It further disclaims any liability for the outcomes arising from using the Software Model. </p>
+
+                      <p>The Licensee agrees to indemnify the University and hold the University harmless from and against any and all claims, damages and liabilities asserted by third parties (including claims for negligence) which arise directly or indirectly from the use of the Software Model.</p>
+
+                      <p>No part of the Software Model may be reproduced, modified, transmitted or transferred in any form or by any means, electronic or mechanical, without the express permission of the University. You may be held legally responsible for any copyright infringement that is caused or encouraged by your failure to abide by these terms and conditions. </p>
+
+                      <p>You are not permitted under this Licence to use this Software Model commercially. Use for which any financial return is received shall be defined as commercial use, and includes (1) integration of all or part of the source code or the Software Model into a product for sale or license by or on behalf of Licensee to third parties or (2) use of the Software Model or any derivative of it for research with the final aim of developing software products for sale or license to a third party or (3) use of the Software Model or any derivative of it for research with the final aim of developing non-software products for sale or license to a third party, or (4) use of the Software Model to provide any service to an external organisation for which payment is received. If you are interested in using the Software Model commercially, please contact Warwick Ventures Limited("WVL"), the technology transfer company of the University, to negotiate a licence. Contact details are: ventures@warwick.ac.uk quoting reference. If you are in any doubt if your use constitutes commercial use, contact WVL:
+                      <a href="mailto:ventures@warwick.ac.uk">ventures@warwick.ac.uk</a></p>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+ </body>
+</html>

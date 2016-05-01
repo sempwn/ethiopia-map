@@ -1,0 +1,35 @@
+<div role="tabpanel" class="tab-pane" id="model">
+    <div class="col-md-6 col-md-offset-3">
+      <h2 class="text-center">Simulation</h2>
+      <div class="form">
+        <div class="form-group">
+          <button id="test-data" class="btn btn-standard">Run simulation</button>
+        </div>
+        <div class="form-group">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" onclick="toggle('.multiSimGroup', this); toggleOff('.singleSimGroup',this);" id="mutliSimCheckBox"> Multiple simulations
+            </label>
+          </div>
+        </div>
+        <div class="form-group multiSimGroup" id="multiSimSliderDiv">
+          <label for="multiSim">No. of simulations</label>
+          <div class="input-group">
+              <input id="multiSim" data-slider-id='multiSimSlider' type="text" data-slider-min="1" data-slider-max="20" data-slider-step="1" data-slider-value="1"/>
+          </div>
+        </div>
+        <div class="form-group" id="multiSimLoading">
+          <div class="spinner-loader">
+            Loading…
+          </div>
+        </div>
+      </div>
+      <div id="parameters-summary"></div>
+      <div id="test-data-result"></div>
+      <div id="graph"></div>
+      <div class="singleSimGroup" id="chart"></div>
+      <div class="multiSimGroup" id="chart_mf"></div>
+      <div class="multiSimGroup" id="chart_wb"></div>
+      <div class="multiSimGroup" id="chart_L3"></div>
+    </div>
+</div>

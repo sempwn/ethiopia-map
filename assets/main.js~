@@ -1,0 +1,83 @@
+
+       $(document).ready(function() {
+
+         $("#generate-string").click(function(e) {
+           $.post("/generator", {"length": $("input[name='length']").val()})
+            .done(function(string) {
+               $("#the-string").show();
+               $("#the-string input").val(string);
+            });
+           e.preventDefault();
+         });
+
+         $("#replace-string").click(function(e) {
+           $.ajax({
+              type: "PUT",
+              url: "/generator",
+              data: {"another_string": $("#the-string").val()}
+           })
+           .done(function() {
+              alert("Replaced!");
+           });
+           e.preventDefault();
+         });
+
+         $("#delete-string").click(function(e) {
+           $.ajax({
+              type: "DELETE",
+              url: "/generator"
+           })
+           .done(function() {
+              $("#the-string").hide();
+           });
+           e.preventDefault();
+         });
+         
+         
+         $("#test-data").click(function(){
+            $('#pleaseWaitDialog').modal('show');
+            $.post(
+            "/test_data",
+            {"some_data" : "hello there"},
+            function(data){
+                
+                var response = jQuery.parseJSON(data);
+                response.unshift('data 1');
+                $("#test-data-result").html(data);
+                $('#pleaseWaitDialog').modal('hide');
+                c3.generate({
+                    bindto: '#chart',
+                    data: {
+                      columns: [
+                        response
+                      ]
+                    }
+                });
+            });
+          });
+         
+         $('#home a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+          });
+
+          $('#profile a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+          });
+
+          $('#messages a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+          });
+
+          $('#settings a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+          });
+          
+         
+          
+       });
+
+     

@@ -189,7 +189,7 @@ function scenarioRunStats(){
 function createScenarioBoxes(){
   var ses = SessionData.retrieveSession();
   var curScen = ScenarioIndex.getIndex();
-  n = ses.scenarios.length;
+  n = (ses.scenarios)? ses.scenarios.length : 0;
   d3.select('#scenario-button-group').html('');
   for(var i=0;i<n;i++){
     d3.select('#scenario-button-group').append('div')

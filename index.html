@@ -37,6 +37,18 @@
         .top-buffer { margin-top:20px; }
         .bottom-buffer { margin-bottom:20px; }
 
+        .panel-heading .accordion-toggle:after {
+            /* symbol for "opening" panels */
+            font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+            content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+            float: right;        /* adjust as needed */
+            color: grey;         /* adjust as needed */
+        }
+        .panel-heading .accordion-toggle.collapsed:after {
+            /* symbol for "collapsed" panels */
+            content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+        }
+
     </style>
 
     <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
@@ -55,6 +67,7 @@
     <script src="./assets/js/d3.slider.js"></script>
     <script src="./assets/ethiopia-map.js"></script>
     <script src="./assets/js/bootstrap-slider.js"></script>
+    <script src="./assets/js/bootbox.min.js"></script>
 
    </head>
    <body>
@@ -79,11 +92,11 @@
               <div class="col-md-6">
                 <h3 class="text-center" id="scenario-title">Scenario Overview</h3>
                 <div class="form-group">
-                  <label for="sel-stat">Select statistic:</label>
+                  <label for="sel-stat">Select scenario map statistic:</label>
                   <select class="form-control" id="sel-stat">
-                    <option>prevalence</option>
-                    <option>passed pre-TAS</option>
-                    <option>doses given</option>
+                    <option value='prev'>mf prevalence</option>
+                    <option value='pTAS'>passed pre-TAS</option>
+                    <option value='doses'>doses given per year</option>
                   </select>
                 </div>
 
@@ -107,11 +120,11 @@
                 </div>
                 <div class="col-md-10 col-mdoffset-1" >
                   <div class="form-group" id="sel-comp-stat-div">
-                    <label for="sel-comp-stat">Select statistic:</label>
+                    <label for="sel-comp-stat">Select scenario comparison statistic:</label>
                     <select class="form-control" id="sel-comp-stat">
                       <option value = 'rounds'>no. rounds to pre-TAS</option>
-                      <option value = 'doses'>no. doses</option>
-                      <option value = 'prev'>prevalence</option>
+                      <option value = 'doses'>no. doses per year</option>
+                      <option value = 'prev'> reduction in prevalence (%)</option>
                     </select>
                   </div>
                   <button type="button" class="btn btn-secondary btn-lg btn-block" id="add-new-scenario">Add Scenario</button>
@@ -135,12 +148,12 @@
                   <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingOne">
                       <h4 class="panel-title">
-                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOneEX" aria-expanded="true" aria-controls="collapseOneEX">
                           Vector Species
                         </a>
                       </h4>
                     </div>
-                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                    <div id="collapseOneEX" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
                       <div class="panel-body">
 
                         <div class="radio">
@@ -410,158 +423,163 @@
         </div>
         <div class="modal-body">
           <div id="scenario-messages"></div>
-          <div class="panel-group" id="accordion">
+
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
-              <div class="panel-heading">
+              <div class="panel-heading" role="tab" id="headingOne">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                    Mass Drug Administration
+                  <a class="accordion-toggle collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Scenario Label
                   </a>
                 </h4>
               </div>
-              <div id="collapse1" class="panel-collapse collapse in">
+              <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
                 <div class="panel-body">
-
-
-
-                        <form>
-                          <div class="form-group hidden">
-                            <label for="inputMDARounds">Rounds of MDA</label>
-                            <div class="input-group">
-                              <div class="input-group-addon">#</div>
-                              <input type="text" class="form-control" id="inputMDARounds" placeholder="no. of rounds">
-                            </div>
-                            <small class="text-muted">For use when running simulations. Not included when calculating number of rounds.</small>
-                          </div>
-                          <div class="form-group">
-                            <label for="freqMDARounds">Frequency of Administration</label>
-                            <div class="input-group">
-
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaSixMonths" id="mdaSixMonthsRadios1" value="False" checked>
-                                  Treat annually
-                                </label>
-                              </div>
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaSixMonths" id="mdaSixMonthsRadios2" value="True">
-                                  Treat every six months
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="form-group">
-                            <label for="MDACoverage">Coverage (%)</label>
-                            <div class="input-group">
-                                <input id="MDACoverage" data-slider-id='MDACoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
-                            </div>
-                          </div>
-                          <div class="form-group">
-                            <label for="mdaRegimen">Drug regimen</label>
-                            <div class="input-group" id="regimen-radio">
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios1" value="1" checked>
-                                  albendazole + ivermectin
-                                </label>
-                              </div>
-
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios2" value="2">
-                                  albendazole + diethylcarbamazine
-                                </label>
-                              </div>
-
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios3" value="3">
-                                  ivermectin
-                                </label>
-                              </div>
-
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios4" value="4">
-                                  ivermectin + albendazole + diethylcarbamazine
-                                </label>
-                              </div>
-                              <div class="radio">
-                                <label>
-                                  <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios5" value="5">
-                                  custom
-                                </label>
-                              </div>
-                              <div class="form-group" id="custom-regimen-sliders">
-                                <label for="Macrofilaricide">Macrofilaricide (%)</label>
-                                <div class="input-group">
-                                    <input id="Macrofilaricide" data-slider-id='MacrofilaricideSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
-                                </div>
-                                <label for="Microfilaricide">Microfilaricide (%)</label>
-                                <div class="input-group">
-                                    <input id="Microfilaricide" data-slider-id='MicrofilaricideSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
-                                </div>
-                                <small class="text-muted">
-                                  Use sliders to control the total proportion of microfilariae and adult filariae cleared from an individual who has received a dose of the drug. The macrofilaricidal and microfilaricidal effects are assumed to occur immediately after
-                                  administration.
-                                </small>
-                              </div>
-                            </div>
-                          </div>
-                        </form>
-
-
-
-
+                  <div class="form-group">
+                    <label for="inputScenarioLabel"></label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="inputScenarioLabel" placeholder="scenario label">
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading">
+              <div class="panel-heading" role="tab" id="headingTwo">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
-                    Vector Control
+                  <a class="accordion-toggle collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Mass Drug Administration
                   </a>
                 </h4>
               </div>
-              <div id="collapse2" class="panel-collapse collapse">
+              <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                 <div class="panel-body">
+                  <form>
+                    <div class="form-group hidden">
+                      <label for="inputMDARounds">Rounds of MDA</label>
+                      <div class="input-group">
+                        <div class="input-group-addon">#</div>
+                        <input type="text" class="form-control" id="inputMDARounds" placeholder="no. of rounds">
+                      </div>
+                      <small class="text-muted">For use when running simulations. Not included when calculating number of rounds.</small>
+                    </div>
+                    <div class="form-group">
+                      <label for="freqMDARounds">Frequency of Administration</label>
+                      <div class="input-group">
 
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaSixMonths" id="mdaSixMonthsRadios1" value="False" checked>
+                            Treat annually
+                          </label>
+                        </div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaSixMonths" id="mdaSixMonthsRadios2" value="True">
+                            Treat every six months
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="MDACoverage">Coverage (%)</label>
+                      <div class="input-group">
+                          <input id="MDACoverage" data-slider-id='MDACoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="mdaRegimen">Drug regimen</label>
+                      <div class="input-group" id="regimen-radio">
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios1" value="1" checked>
+                            albendazole + ivermectin
+                          </label>
+                        </div>
 
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios2" value="2">
+                            albendazole + diethylcarbamazine
+                          </label>
+                        </div>
 
-                        <form>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios3" value="3">
+                            ivermectin
+                          </label>
+                        </div>
 
-
-
-                          <div class="form-group">
-                            <label for="bedNetCoverage">Bed Net Coverage (%)</label>
-                            <div class="input-group">
-                                <input id="bedNetCoverage" data-slider-id='bedNetCoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-                            </div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios4" value="4">
+                            ivermectin + albendazole + diethylcarbamazine
+                          </label>
+                        </div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="mdaRegimenRadios" id="mdaRegimenRadios5" value="5">
+                            custom
+                          </label>
+                        </div>
+                        <div class="form-group" id="custom-regimen-sliders">
+                          <label for="Macrofilaricide">Macrofilaricide (%)</label>
+                          <div class="input-group">
+                              <input id="Macrofilaricide" data-slider-id='MacrofilaricideSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
                           </div>
-                          <p>
-                            Coverage of bed nets during intervention. The intervention period is defined as the range of time underwhich MDA occurs. If it is desired to investigate the use of bed nets alone as an intervention for a period of time then this can be controlled through setting the rounds of MDA to the number of years desired and setting the MDA coverage to 0%. <small>Bed nets are assumed to affect an individual's monthly bite rate only.</small>
-                          </p>
-
-                          <div class="form-group">
-                            <label for="insecticideCoverage">Insecticide Coverage (%)</label>
-                            <div class="input-group">
-                                <input id="insecticideCoverage" data-slider-id='insecticideCoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-                            </div>
+                          <label for="Microfilaricide">Microfilaricide (%)</label>
+                          <div class="input-group">
+                              <input id="Microfilaricide" data-slider-id='MicrofilaricideSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="65"/>
                           </div>
-                          <p>
-                            Coverage of insecticide use during intervention. The intervention period is defined as the range of time underwhich MDA occurs. If it is desired to investigate the use of bed nets alone as an intervention for a period of time then this can be controlled through setting the rounds of MDA to the number of years desired and setting the MDA coverage to 0%. <small>Insecticide is assumed to affect the vector to host ratio only.</small>
-                          </p>
+                          <small class="text-muted">
+                            Use sliders to control the total proportion of microfilariae and adult filariae cleared from an individual who has received a dose of the drug. The macrofilaricidal and microfilaricidal effects are assumed to occur immediately after
+                            administration.
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingThree">
+                <h4 class="panel-title">
+                  <a class="collapsed accordion-toggle" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    Vector Control
+                  </a>
+                </h4>
+
+              </div>
+              <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div class="panel-body">
+                  <form>
 
 
-                        </form>
+
+                    <div class="form-group">
+                      <label for="bedNetCoverage">Bed Net Coverage (%)</label>
+                      <div class="input-group">
+                          <input id="bedNetCoverage" data-slider-id='bedNetCoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                      </div>
+                    </div>
+                    <p>
+                      Coverage of bed nets during intervention. The intervention period is defined as the range of time underwhich MDA occurs. If it is desired to investigate the use of bed nets alone as an intervention for a period of time then this can be controlled through setting the rounds of MDA to the number of years desired and setting the MDA coverage to 0%. <small>Bed nets are assumed to affect an individual's monthly bite rate only.</small>
+                    </p>
+
+                    <div class="form-group">
+                      <label for="insecticideCoverage">Insecticide Coverage (%)</label>
+                      <div class="input-group">
+                          <input id="insecticideCoverage" data-slider-id='insecticideCoverageSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                      </div>
+                    </div>
+                    <p>
+                      Coverage of insecticide use during intervention. The intervention period is defined as the range of time underwhich MDA occurs. If it is desired to investigate the use of bed nets alone as an intervention for a period of time then this can be controlled through setting the rounds of MDA to the number of years desired and setting the MDA coverage to 0%. <small>Insecticide is assumed to affect the vector to host ratio only.</small>
+                    </p>
 
 
-
-
-
-
+                  </form>
                 </div>
               </div>
             </div>
@@ -575,6 +593,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" id="run_scenario">Run Scenario</button>
+          <button type="button" class="btn btn-warning hidden" id="delete_scenario">Delete Scenario</button>
         </div>
       </div>
     </div>
@@ -582,14 +601,14 @@
 
   <div id="new-scenario-accordian" style="display: none;">
     <div class="panel panel-default">
-      <div class="panel-heading" role="tab" id="headingOne">
+      <div class="panel-heading" role="tab" id="headingOneEX">
         <h4 class="panel-title">
-          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOneEX" aria-expanded="true" aria-controls="collapseOneEX">
             //title
           </a>
         </h4>
       </div>
-      <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+      <div id="collapseOneEX" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOneEX">
         <div class="panel-body">
           //body
         </div>

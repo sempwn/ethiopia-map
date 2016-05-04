@@ -6,22 +6,32 @@ var glob_prevs;
 DEFINE CLASS SESSION DATA TO STORE AND RETRIEVE RUNS.
 Data structure
 session ---- scenarios ---- ---- ---- params
+                       ----      ---- label
+                       ----      ---- stats   ----  ts
+                       ----                   ----  doses
+                       ----                   ----  prev_reds
+                       ----                   ----  num_rounds
+                       ----
                        ----      ---- results ----  ---- ---- Ws
                        ----                   ----       ---- Ms
                        ----                   ----       ---- ts
                                               ----       ---- doses
 
+
 */
 function SessionData(){}
 
-SessionData.storeResults =  function(results){
+SessionData.storeResults =  function(results,scenLabel,stats){
   //takes results: an Array of json with each json obj having ts, Ms, Ws.
   //combines these with parameter information and stores to be retrieved whenever.
   var sessionData = JSON.parse(localStorage.getItem('sessionData')); //retrieve session dat from storage.
   if ( (sessionData == null) || (sessionData.scenarios == null) ){
     sessionData = {'scenarios':[]};
   }
-  var scenario = {'params': params,'results' : results};
+  if(scenLabel==null){
+    scenLabel = 'Scenario ' + ScenarioIndex.getIndex();
+  }
+  var scenario = {'params': params,'results' : results, 'label' : scenLabel};
   var scenInd = ScenarioIndex.getIndex();
 
   sessionData.scenarios[scenInd] = scenario;
@@ -29,6 +39,14 @@ SessionData.storeResults =  function(results){
   localStorage.setItem('sessionData', toStore);
   return sessionData;
 
+}
+
+SessionData.storeStats = function(stats){
+  var sessionData = JSON.parse(localStorage.getItem('sessionData')); //retrieve session dat from storage.
+  var scenInd = ScenarioIndex.getIndex();
+  sessionData.scenarios[scenInd]['stats'] = stats;
+  toStore = JSON.stringify(sessionData);
+  localStorage.setItem('sessionData', toStore);
 }
 
 SessionData.createNewSession = function(){
@@ -48,6 +66,8 @@ SessionData.deleteSession = function(){
   //delete session data to start fresh when page loads.
   localStorage.setItem('sessionData', null);
 }
+
+
 
 SessionData.retrieveSession = function(){
   return JSON.parse(localStorage.getItem('sessionData'));
@@ -111,7 +131,15 @@ SessionData.ran = function(i){
     return false
   }
 }
+SessionData.deleteScenario = function(){
+  var ind = ScenarioIndex.getIndex();
+  var ses = SessionData.retrieveSession();
+  ses.scenarios.splice(ind,1);
+  var toStore = JSON.stringify(ses);
+  localStorage.setItem('sessionData', toStore);
+  ScenarioIndex.setIndex(0);
 
+}
 /*
 functions for retrieving current scenario index
 */
@@ -124,30 +152,72 @@ ScenarioIndex.setIndex = function(ind){
     var ses = SessionData.retrieveSession();
     var scen = ses.scenarios[ind];
     params = scen.params;
+    $('#scenario-title').html(ses.scenarios[ind].label + ' Overview');
   }catch(err){}
-  $('#scenario-title').html('Scenario '+ind+' Overview');
+
   return localStorage.setItem('scenarioIndex',ind);
 }
 /*
 Specific mapping functions
 */
+
+function scenarioRunStats(){
+  var scenInd = ScenarioIndex.getIndex();
+  var dfrd = $.Deferred();
+  var ts = [],dyrs=[],ryrs=[];
+  d3.json('./assets/EthiopiaNew.json',function(err,data){
+
+      var ts=[];
+      var dyrs = [];
+      for (var t = 0; t < 20; t++){
+        cLow = SessionData.reductions(scenInd,Math.floor(t),'low');
+        cMedium = SessionData.reductions(scenInd,Math.floor(t),'medium');
+        cHigh = SessionData.reductions(scenInd,Math.floor(t),'high');
+        var stats = reductionStatsCalc(data,cLow,cMedium,cHigh,params.covMDA);
+        dyrs.push(stats.doses);
+        ts.push(t);
+        ryrs.push((1-stats.reduction)*100);
+      }
+      console.log(ts);
+      console.log(dyrs);
+      SessionData.storeStats({'ts': ts,'prev_reds' : ryrs,'doses':dyrs});
+      drawComparisonPlot();
+    });
+
+
+}
 function createScenarioBoxes(){
   var ses = SessionData.retrieveSession();
+  var curScen = ScenarioIndex.getIndex();
   n = ses.scenarios.length;
   d3.select('#scenario-button-group').html('');
   for(var i=0;i<n;i++){
     d3.select('#scenario-button-group').append('div')
-      .attr('class','btn btn-primary btn-lg btn-block')
+      .attr('class','btn btn-primary btn-lg btn-block '.concat((i==curScen)? 'active':''))
       .attr('id','scenario-button-'+i)
+      .attr('data-scenario-label',ses.scenarios[i].label)
       .attr('data-scenario',i)
-      .html('Scenario '+ i)
+      .attr('aria-pressed',(i==curScen))
+      .html(ses.scenarios[i].label)
       .on('click',function(){
         ScenarioIndex.setIndex($('#'+this.id).data('scenario'));
         setmodelParams();
         fixInput();
-        $('#scenario-messages').html('<div class="alert alert-success alert-dismissible" role="alert"> Scenario '
-        +$('#'+this.id).data('scenario')
-        +' set </div>');
+        $('#scenario-messages').html('<div class="alert alert-success alert-dismissible" role="alert">  '
+        + $('#'+this.id).data('scenario-label')
+        + ' set </div>');
+        $(this).addClass("active").siblings().removeClass("active");
+        $('#delete_scenario').removeClass('hidden').unbind().click(function(){
+          bootbox.confirm("Are you sure you want to delete this scenario?", function(result) {
+            if(result){
+              SessionData.deleteScenario();
+              createScenarioBoxes();
+              drawComparisonPlot();
+              drawMap();
+              $('#settings-modal').modal('hide');
+            }
+          });
+        });
         $('#settings-modal').modal('show');
 
         if(SessionData.ran(i)){
@@ -192,28 +262,18 @@ function drawDosesTimeLine(){ //TODO: fix this function.
     }
   };
 
-  d3.json('./assets/EthiopiaNew.json',function(err,data){
+
     for (var scenInd = 0; scenInd < n; scenInd ++)
     {
-      ScenarioIndex.setIndex(scenInd);
-      var ts=[];
-      var dyrs = [];
-      for (var t = 0; t < 20; t++){
-        cLow = SessionData.reductions(scenInd,Math.floor(t),'low');
-        cMedium = SessionData.reductions(scenInd,Math.floor(t),'medium');
-        cHigh = SessionData.reductions(scenInd,Math.floor(t),'high');
-        var stats = reductionStatsCalc(data,cLow,cMedium,cHigh,params.covMDA);
-        dyrs.push(stats.doses);
-        ts.push(t);
-      }
-      console.log(ts);
-      console.log(dyrs);
+      var ts = ses.scenarios[scenInd].stats.ts;
+      var dyrs = ses.scenarios[scenInd].stats.doses;
+
 
       var trace = {
         x: ts,
         y: dyrs,
         mode: 'lines+markers',
-        name: 'Scenario ' + scenInd
+        name: ses.scenarios[scenInd].label
       };
       traces.push(trace);
 
@@ -222,7 +282,7 @@ function drawDosesTimeLine(){ //TODO: fix this function.
     Plotly.newPlot('map-boxplot', traces, timeline_plot_layout, {displayModeBar: false});
     ScenarioIndex.setIndex(orgScenInd);
 
-  });
+
 
 
 }
@@ -249,27 +309,16 @@ function drawPrevalenceTimeLine(){
     }
   };
 
-  d3.json('./assets/EthiopiaNew.json',function(err,data){
+
     for (var scenInd = 0; scenInd < n; scenInd ++)
     {
-      ScenarioIndex.setIndex(scenInd);
-      var ts=[];
-      var dyrs = [];
-      for (var t = 0; t < 20; t++){
-        cLow = SessionData.reductions(scenInd,Math.floor(t),'low');
-        cMedium = SessionData.reductions(scenInd,Math.floor(t),'medium');
-        cHigh = SessionData.reductions(scenInd,Math.floor(t),'high');
-        var stats = reductionStatsCalc(data,cLow,cMedium,cHigh,params.covMDA);
-        dyrs.push((1-stats.reduction)*100);
-        ts.push(t);
-      }
-
-
+      var ts = ses.scenarios[scenInd].stats.ts;
+      var dyrs = ses.scenarios[scenInd].stats.prev_reds;
       var trace = {
         x: ts,
         y: dyrs,
         mode: 'lines+markers',
-        name: 'Scenario ' + scenInd
+        name: ses.scenarios[scenInd].label
       };
       traces.push(trace);
 
@@ -278,7 +327,7 @@ function drawPrevalenceTimeLine(){
     Plotly.newPlot('map-boxplot', traces, timeline_plot_layout, {displayModeBar: false});
     ScenarioIndex.setIndex(orgScenInd);
 
-  });
+
 
 
 }
@@ -291,7 +340,7 @@ function drawMapBoxPlot(){
     var trace = {
       y: SessionData.nRounds(i),
       type: 'box',
-      name: 'Scenario ' + i
+      name: ses.scenarios[i].label
     };
     traces.push(trace);
   }
@@ -370,6 +419,7 @@ function numberWithCommas(x) {
 
 function runMapSimulation(){
   setInputParams({'nMDA':40});
+  var scenLabel = $('#inputScenarioLabel').val();
    //max number of mda rounds even if doing it six monthly.
   var maxN = 60;
   var runs = [];
@@ -398,11 +448,14 @@ function runMapSimulation(){
     if(progression == maxN) {
       $('#map-progress-bar').hide();
       clearInterval(progress);
-      SessionData.storeResults(runs);
+      SessionData.storeResults(runs,scenLabel);
+      scenarioRunStats();
       createScenarioBoxes();
-      drawComparisonPlot();
+
       drawMap();
       $('#settings-modal').modal('hide');
+
+
     } else {
       progression += 1;
     }
@@ -475,13 +528,13 @@ function colorIU(end,prev,pop,cLow,cMedium,cHigh){
     rPrev = 0.0;
   }
   var colClass;
-  if (stat=='prevalence'){
+  if (stat=='prev'){
 
     colClass = quantize(rPrev);
-  } else if (stat=='passed pre-TAS'){
+  } else if (stat=='pTAS'){
 
     colClass = quantizeTAS(pTAS);
-  } else if (stat=='doses given'){
+  } else if (stat=='doses'){
     colClass = quantizeDoses(doses);
   } else {
     var colClass = quantize(0);
@@ -505,6 +558,7 @@ function addScenarioButton(){
   ScenarioIndex.setIndex(i);
   SessionData.createNewSession();
   $('#scenario-messages').html('');
+  $('#delete_scenario').addClass('hidden');
   $('#settings-modal').modal('show');
   fixInput(false);
 }
@@ -534,6 +588,7 @@ function drawMap() {
 }
 
 function fixInput(fix_input){
+  var curScen = ScenarioIndex.getIndex();
   if (fix_input == null){
     fix_input = true;
   }
@@ -546,6 +601,7 @@ function fixInput(fix_input){
     $('#run_scenario').hide();
     $('input:radio[name=mdaSixMonths]').attr('disabled',true);
     $('input:radio[name=mdaRegimenRadios]').attr('disabled',true);
+    $('#inputScenarioLabel').attr('disabled',true);
   } else {
     $('#MDACoverage').slider('enable');
     $('#bedNetCoverage').slider('enable');
@@ -555,6 +611,7 @@ function fixInput(fix_input){
     $('#run_scenario').show();
     $('input:radio[name=mdaSixMonths]').attr('disabled',false);
     $('input:radio[name=mdaRegimenRadios]').attr('disabled',false);
+    $('#inputScenarioLabel').attr('disabled',false).val('Scenario '+curScen);
 
   }
   if($("input[name=mdaRegimenRadios]:checked").val()==5){
@@ -570,6 +627,7 @@ function setmodelParams(fixInput){
   var scenInd = ScenarioIndex.getIndex();
   var ses = SessionData.retrieveSession();
   var ps = ses.scenarios[scenInd].params.inputs;
+  $('#inputScenarioLabel').val(ses.scenarios[scenInd].label);
   $("#inputMDARounds").val(ps.mda);
   $('#MDACoverage').slider('setValue', Number(ps.coverage));
   $('#bedNetCoverage').slider('setValue',Number(ps.covN));
@@ -591,8 +649,12 @@ function setmodelParams(fixInput){
 
 $(document).ready(function(){
   //first remove previous session data.
-  SessionData.deleteSession();
+  //SessionData.deleteSession();
   ScenarioIndex.setIndex(0);
+  if (SessionData.ran(0)){
+    resetSlider();
+  }
+  createScenarioBoxes();
   $('#sel-comp-stat').change(drawComparisonPlot);
   $('#add-new-scenario').on('click',addScenarioButton);
   $('#run_scenario').on('click',modalConfirmation);

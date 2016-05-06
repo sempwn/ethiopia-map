@@ -70,7 +70,15 @@ SessionData.deleteSession = function(){
 
 
 SessionData.retrieveSession = function(){
-  return JSON.parse(localStorage.getItem('sessionData'));
+  var ses = JSON.parse(localStorage.getItem('sessionData'));
+  if (ses.scenarios && ses.scenarios[0] && ses.scenarios[0].label){
+    return ses
+  } else {
+    ses = {'scenarios':[]};
+    toStore = JSON.stringify(ses);
+    localStorage.setItem('sessionData', toStore);
+    return ses
+  }
 }
 SessionData.numScenarios = function(){
   var ses = SessionData.retrieveSession();
@@ -203,6 +211,7 @@ function createScenarioBoxes(){
         ScenarioIndex.setIndex($('#'+this.id).data('scenario'));
         setmodelParams();
         fixInput();
+        drawMap();
         $('#scenario-messages').html('<div class="alert alert-success alert-dismissible" role="alert">  '
         + $('#'+this.id).data('scenario-label')
         + ' set </div>');
@@ -230,13 +239,18 @@ function createScenarioBoxes(){
 }
 
 function drawComparisonPlot(){
-  var option = $('#sel-comp-stat').val();
-  if (option=="doses"){
-    drawDosesTimeLine();
-  }else if (option=="rounds"){
-    drawMapBoxPlot();
-  } else if(option=="prev"){
-    drawPrevalenceTimeLine();
+  var ses = SessionData.retrieveSession();
+  if (ses.scenarios.length > 0){
+    var option = $('#sel-comp-stat').val();
+    if (option=="doses"){
+      drawDosesTimeLine();
+    }else if (option=="rounds"){
+      drawMapBoxPlot();
+    } else if(option=="prev"){
+      drawPrevalenceTimeLine();
+    }
+  } else {
+    Plotly.newPlot('map-boxplot',[], {height:0,width:0},{displayModeBar: false});
   }
 }
 
@@ -655,6 +669,7 @@ $(document).ready(function(){
     resetSlider();
   }
   createScenarioBoxes();
+  drawComparisonPlot();
   $('#sel-comp-stat').change(drawComparisonPlot);
   $('#add-new-scenario').on('click',addScenarioButton);
   $('#run_scenario').on('click',modalConfirmation);
@@ -681,7 +696,7 @@ $(document).ready(function(){
 
 
   function ready(error, data, prev_datas) {
-
+            d3.select('#map').select('img').remove();
             glob_data = data; //debug this.
             glob_prevs = prev_datas;
             console.log(data.features.length + ' ' + glob_prevs.length);

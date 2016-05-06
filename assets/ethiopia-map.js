@@ -71,7 +71,7 @@ SessionData.deleteSession = function(){
 
 SessionData.retrieveSession = function(){
   var ses = JSON.parse(localStorage.getItem('sessionData'));
-  if (ses.scenarios && ses.scenarios[0] && ses.scenarios[0].label){
+  if (ses && ses.scenarios && ses.scenarios[0] && ses.scenarios[0].label){
     return ses
   } else {
     ses = {'scenarios':[]};

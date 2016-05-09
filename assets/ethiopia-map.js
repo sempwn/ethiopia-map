@@ -589,7 +589,7 @@ function colorIU(end,prev,pop,cLow,cMedium,cHigh){
   } else {
     var colClass = quantize(0);
   }
-    return colClass;
+    return "iu " + colClass;
 }
 
 function modalConfirmation(i){

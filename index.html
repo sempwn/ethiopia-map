@@ -21,15 +21,16 @@
           stroke-linejoin: round;
         }
 
-        .q0-9 { fill:rgb(247,251,255); }
-        .q1-9 { fill:rgb(222,235,247); }
-        .q2-9 { fill:rgb(198,219,239); }
-        .q3-9 { fill:rgb(158,202,225); }
-        .q4-9 { fill:rgb(107,174,214); }
-        .q5-9 { fill:rgb(66,146,198); }
-        .q6-9 { fill:rgb(33,113,181); }
-        .q7-9 { fill:rgb(8,81,156); }
-        .q8-9 { fill:rgb(8,48,107); }
+
+        .q0-9 { fill:rgb(237,  209,  203); }
+        .q1-9 { fill:rgb(227,  181,  183); }
+        .q2-9 { fill:rgb(212,  153,  167); }
+        .q3-9 { fill:rgb(194,  127,  154); }
+        .q4-9 { fill:rgb(170,  104,  143); }
+        .q5-9 { fill:rgb(141,   82,  130); }
+        .q6-9 { fill:rgb(110,   64,  113); }
+        .q7-9 { fill:rgb(76,   46,   90); }
+        .q8-9 { fill:rgb(45,   30,   62); }
 
         .qTAS0-1 {fill: #EA9999; }
         .qTAS1-1 {fill: #669F66; }
@@ -47,6 +48,15 @@
         .panel-heading .accordion-toggle.collapsed:after {
             /* symbol for "collapsed" panels */
             content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+        }
+
+        .divider {
+          height: 1px;
+          width:100%;
+          display:block; /* for use on default inline elements like span */
+          margin: 9px 0;
+          overflow: hidden;
+          background-color: #e5e5e5;
         }
 
     </style>
@@ -91,43 +101,54 @@
 
               <div class="col-md-6">
                 <h3 class="text-center" id="scenario-title">Scenario Overview</h3>
-                <div class="form-group">
-                  <label for="sel-stat">Select scenario map statistic:</label>
-                  <select class="form-control" id="sel-stat">
-                    <option value='prev'>mf prevalence</option>
-                    <option value='pTAS'>passed pre-TAS</option>
-                    <option value='doses'>doses given per year</option>
-                  </select>
-                </div>
-
-                <div id="map">
-                  <img src="./assets/img/loading.gif">
-                </div>
-                <div id='map-outputs' class="text-center">
-                  <div class="row">
-                    <div class="bottom-buffer col-md-10 col-md-offset-1" id="slider-div">
-                      <div id="slider1"></div>
+                <div class="row">
+                  <div class="col-md-10 col-md-offset-1">
+                    <div class="form-group">
+                      <label for="sel-stat">Select scenario map statistic:</label>
+                      <select class="form-control" id="sel-stat">
+                        <option value='prev'>mf prevalence</option>
+                        <option value='pTAS'>passed pre-TAS</option>
+                        <option value='doses'>doses given per year</option>
+                      </select>
                     </div>
                   </div>
-                  <div class="row">
-                    <h4></h4>
+                </div>
+                <div class="row">
+                  <div id="map">
+                    <img src="./assets/img/loading.gif">
+                  </div>
+                  <div id='map-outputs' class="text-center">
+                    <div class="row">
+                      <div class="bottom-buffer col-md-10 col-md-offset-1" id="slider-div">
+                        <div id="slider1"></div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <h4></h4>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="col-md-6" id="mda-table-box">
-                <h3 class="text-center">Scenario Comparisons</h3>
+                <div class="row">
+                  <h3 class="text-center">Scenario Comparisons</h3>
+                </div>
+                <div class="row">
+                  <div class="col-md-10 col-md-offset-1">
+                    <div class="form-group" id="sel-comp-stat-div">
+                      <label for="sel-comp-stat">Select scenario comparison statistic:</label>
+                      <select class="form-control" id="sel-comp-stat">
+                        <option value = 'rounds'>no. rounds to pre-TAS</option>
+                        <option value = 'doses'>no. doses per year</option>
+                        <option value = 'prev'> reduction in prevalence (%)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
                 <div id="map-boxplot">
 
                 </div>
-                <div class="col-md-10 col-mdoffset-1" >
-                  <div class="form-group" id="sel-comp-stat-div">
-                    <label for="sel-comp-stat">Select scenario comparison statistic:</label>
-                    <select class="form-control" id="sel-comp-stat">
-                      <option value = 'rounds'>no. rounds to pre-TAS</option>
-                      <option value = 'doses'>no. doses per year</option>
-                      <option value = 'prev'> reduction in prevalence (%)</option>
-                    </select>
-                  </div>
+                <div class="col-md-10 col-md-offset-1" >
                   <button type="button" class="btn btn-secondary btn-lg btn-block" id="add-new-scenario">Add Scenario</button>
                   <div id="scenario-button-group"></div>
                 </div>

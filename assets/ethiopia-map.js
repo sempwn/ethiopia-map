@@ -168,7 +168,27 @@ ScenarioIndex.setIndex = function(ind){
 /*
 Specific mapping functions
 */
+function clearSession(){
+  bootbox.confirm("Are you sure you want to delete this session? This will remove all scenarios.", function(result) {
+    if(result){
+      SessionData.deleteSession();
+      createScenarioBoxes();
+      scenarioComparisonSelectVisibility();
+      drawMap();
+      drawComparisonPlot();
+    }
+  });
+}
 
+function scenarioComparisonSelectVisibility(){
+  var ses = SessionData.retrieveSession();
+  var n = (ses && ses.scenarios)? ses.scenarios.length : 0;
+  if (n>0){
+    $('#sel-comp-stat-div').show();
+  } else {
+    $('#sel-comp-stat-div').hide();
+  }
+}
 function scenarioRunStats(){
   var scenInd = ScenarioIndex.getIndex();
   var dfrd = $.Deferred();
@@ -199,6 +219,10 @@ function createScenarioBoxes(){
   var curScen = ScenarioIndex.getIndex();
   n = (ses && ses.scenarios)? ses.scenarios.length : 0;
   d3.select('#scenario-button-group').html('');
+  if(n>0){
+    d3.select('#scenario-button-group').append('h4')
+    .html('Select scenario to map:');
+  }
   for(var i=0;i<n;i++){
     d3.select('#scenario-button-group').append('div')
       .attr('class','btn btn-primary btn-lg btn-block '.concat((i==curScen)? 'active':''))
@@ -221,6 +245,7 @@ function createScenarioBoxes(){
             if(result){
               SessionData.deleteScenario();
               createScenarioBoxes();
+              scenarioComparisonSelectVisibility();
               drawComparisonPlot();
               drawMap();
               $('#settings-modal').modal('hide');
@@ -236,6 +261,14 @@ function createScenarioBoxes(){
         }
       });
   }
+  if (n>0){
+    d3.select('#scenario-button-group').append('div').attr('class','divider');
+    d3.select('#scenario-button-group').append('div')
+    .attr('class','btn btn-danger btn-lg btn-block ')
+    .html('Clear Session')
+    .on('click',clearSession);
+  }
+
 }
 
 function drawComparisonPlot(){
@@ -250,7 +283,7 @@ function drawComparisonPlot(){
       drawPrevalenceTimeLine();
     }
   } else {
-    Plotly.newPlot('map-boxplot',[], {height:0,width:0},{displayModeBar: false});
+    Plotly.newPlot('map-boxplot',[], {height:10,width:10},{displayModeBar: false});
   }
 }
 
@@ -261,6 +294,7 @@ function drawDosesTimeLine(){ //TODO: fix this function.
   var traces = [];
   var cLow,cMedium,cHigh;
   var timeline_plot_layout = { //main layout format for plot.ly chart
+    autosize: true,
     title: 'Doses per year',
     xaxis: {
       title: 'time since start of intervention (yrs)',
@@ -308,6 +342,7 @@ function drawPrevalenceTimeLine(){
   var traces = [];
   var cLow,cMedium,cHigh;
   var timeline_plot_layout = { //main layout format for plot.ly chart
+    autosize: true,
     title: 'Reduction in Prevalence (%)',
     xaxis: {
       title: 'time since start of intervention (yrs)',
@@ -359,6 +394,7 @@ function drawMapBoxPlot(){
     traces.push(trace);
   }
   var box_plot_layout = { //main layout format for plot.ly chart
+    autosize: true,
     title: 'No. rounds to below 1% microfilariaemia',
     xaxis: {
       title: '',
@@ -381,7 +417,7 @@ function createTimeLine(){
   var tooltip = d3.select('#tooltip');
   var res = d3.select('#map-outputs').select('h4');
   d3.json('./assets/EthiopiaNew.json',function(err,data){
-    d3.select('#slider1').call(d3.slider().axis(true).min(0).max(20).step(1)
+    d3.select('#slider1').call(d3.slider().axis(true).min(0).max(19).step(1)
                                  .on("slide",function(evt,value){
                                    var scenInd = ScenarioIndex.getIndex();
                                    var cRed = SessionData.reductions(scenInd,Math.floor(value)); //TODO: use correct index.
@@ -410,7 +446,7 @@ function createTimeLine(){
                                          + data.features[i].properties.ADMIN1 + ", " + data.features[i].properties.ADMIN2 + ", "
                                          + data.features[i].properties.ADMIN3 + ", "
                                          + "prevalence : " + Math.round(100*data.features[i].properties.prev*cRed) + "%. "
-                                         + "Population size : " + Math.round(data.features[i].properties.pop)
+                                         + "Population size : " + numberWithCommas(Math.round(data.features[i].properties.pop))
                                          + " </h5>");
                                      });
                                  })
@@ -435,7 +471,7 @@ function runMapSimulation(){
   setInputParams({'nMDA':40});
   var scenLabel = $('#inputScenarioLabel').val();
    //max number of mda rounds even if doing it six monthly.
-  var maxN = 60;
+  var maxN = 100;
   var runs = [];
   var progression = 0;
   fixInput();
@@ -465,7 +501,7 @@ function runMapSimulation(){
       SessionData.storeResults(runs,scenLabel);
       scenarioRunStats();
       createScenarioBoxes();
-
+      scenarioComparisonSelectVisibility();
       drawMap();
       $('#settings-modal').modal('hide');
 
@@ -669,6 +705,7 @@ $(document).ready(function(){
     resetSlider();
   }
   createScenarioBoxes();
+  scenarioComparisonSelectVisibility();
   drawComparisonPlot();
   $('#sel-comp-stat').change(drawComparisonPlot);
   $('#add-new-scenario').on('click',addScenarioButton);
@@ -751,7 +788,7 @@ $(document).ready(function(){
                     + data.features[i].properties.ADMIN1 + ", " + data.features[i].properties.ADMIN2 + ", "
                     + data.features[i].properties.ADMIN3 + ", "
                     + "prevalence : " + Math.round(100*data.features[i].properties.prev) + "%. "
-                    + "Population size : " + Math.round(data.features[i].properties.pop)
+                    + "Population size : " + numberWithCommas(Math.round(data.features[i].properties.pop))
                     + " </h5>");
                 })
                 .on('mouseout', function() {

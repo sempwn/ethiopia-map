@@ -630,7 +630,14 @@ function drawMap() {
           return colorIU(0,0,0,0,0,0);
         }
 
-      })
+      }).on('mousemove', function(d,i) {
+        d3.select('#tooltip').style("visibility", "visible").html("<h5 class='text-center'> "
+        + data.features[i].properties.ADMIN1 + ", " + data.features[i].properties.ADMIN2 + ", "
+        + data.features[i].properties.ADMIN3 + ", "
+        + "prevalence : " + Math.round(100*data.features[i].properties.prev) + "%. "
+        + "Population size : " + numberWithCommas(Math.round(data.features[i].properties.pop))
+        + " </h5>");
+      });
     });
     if(SessionData.ran(ScenarioIndex.getIndex())){
       resetSlider();
@@ -700,6 +707,15 @@ function setmodelParams(fixInput){
 $(document).ready(function(){
   //first remove previous session data.
   //SessionData.deleteSession();
+  var width = $('#map').width(), height=350;
+  var tooltip = d3.select('#map').append('div')
+      .style("visibility", "hidden")
+      .attr("id","tooltip")
+      .html('');
+  var canvas = d3.select("#map").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+        
   ScenarioIndex.setIndex(0);
   if (SessionData.ran(0)){
     resetSlider();
@@ -714,14 +730,7 @@ $(document).ready(function(){
   $('#map-progress-bar').hide();
   $( "#sel-stat" ).change(drawMap);
 
-  var width = 760, height=350;
-  var tooltip = d3.select('#map').append('div')
-      .style("visibility", "hidden")
-      .attr("id","tooltip")
-      .html('<h4> prevalence </h4>');
-  var canvas = d3.select("#map").append("svg")
-        .attr("width", width)
-        .attr("height", height);
+
 
 
   queue()

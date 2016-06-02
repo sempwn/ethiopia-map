@@ -506,6 +506,7 @@ function runMapSimulation(){
       createScenarioBoxes();
       scenarioComparisonSelectVisibility();
       drawMap();
+      $('#scenario-title').html(scenLabel + ' Overview');
       $('#settings-modal').modal('hide');
 
 

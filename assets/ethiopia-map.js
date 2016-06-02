@@ -176,6 +176,7 @@ function clearSession(){
       scenarioComparisonSelectVisibility();
       drawMap();
       drawComparisonPlot();
+      $('#scenario-title').html('Scenario Overview');
     }
   });
 }
@@ -236,6 +237,7 @@ function createScenarioBoxes(){
         setmodelParams();
         fixInput();
         drawMap();
+        $('#close_scenario').html('show scenario');
         $('#scenario-messages').html('<div class="alert alert-success alert-dismissible" role="alert">  '
         + $('#'+this.id).data('scenario-label')
         + ' set </div>');
@@ -611,6 +613,7 @@ function addScenarioButton(){
   $('#scenario-messages').html('');
   $('#delete_scenario').addClass('hidden');
   $('#settings-modal').modal('show');
+  $('#close_scenario').html('close');
   fixInput(false);
 }
 

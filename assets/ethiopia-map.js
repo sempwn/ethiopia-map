@@ -29,7 +29,7 @@ SessionData.storeResults =  function(results,scenLabel,stats){
     sessionData = {'scenarios':[]};
   }
   if(scenLabel==null){
-    scenLabel = 'Scenario ' + ScenarioIndex.getIndex();
+    scenLabel = 'Scenario ' + (ScenarioIndex.getIndex()+1);
   }
   var scenario = {'params': params,'results' : results, 'label' : scenLabel};
   var scenInd = ScenarioIndex.getIndex();
@@ -417,8 +417,9 @@ function createTimeLine(){
   var tooltip = d3.select('#tooltip');
   var res = d3.select('#map-outputs').select('h4');
   d3.json('./assets/EthiopiaNew.json',function(err,data){
-    d3.select('#slider1').call(d3.slider().axis(true).min(0).max(19).step(1)
+    d3.select('#slider1').call(d3.slider().axis(true).min(2016).max(2016+19).step(1)
                                  .on("slide",function(evt,value){
+                                   value = value - 2016;
                                    var scenInd = ScenarioIndex.getIndex();
                                    var cRed = SessionData.reductions(scenInd,Math.floor(value)); //TODO: use correct index.
                                    var cLow = SessionData.reductions(scenInd,Math.floor(value),'low');
@@ -668,7 +669,7 @@ function fixInput(fix_input){
     $('#run_scenario').show();
     $('input:radio[name=mdaSixMonths]').attr('disabled',false);
     $('input:radio[name=mdaRegimenRadios]').attr('disabled',false);
-    $('#inputScenarioLabel').attr('disabled',false).val('Scenario '+curScen);
+    $('#inputScenarioLabel').attr('disabled',false).val('Scenario '+(curScen+1));
 
   }
   if($("input[name=mdaRegimenRadios]:checked").val()==5){
@@ -715,7 +716,7 @@ $(document).ready(function(){
   var canvas = d3.select("#map").append("svg")
         .attr("width", width)
         .attr("height", height);
-        
+
   ScenarioIndex.setIndex(0);
   if (SessionData.ran(0)){
     resetSlider();

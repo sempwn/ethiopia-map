@@ -24,7 +24,7 @@ function SessionData(){}
 SessionData.storeResults =  function(results,scenLabel,stats){
   //takes results: an Array of json with each json obj having ts, Ms, Ws.
   //combines these with parameter information and stores to be retrieved whenever.
-  var sessionData = JSON.parse(localStorage.getItem('sessionData')); //retrieve session dat from storage.
+  var sessionData = JSON.parse(localStorage.getItem('sessionDataEthiopia')); //retrieve session dat from storage.
   if ( (sessionData == null) || (sessionData.scenarios == null) ){
     sessionData = {'scenarios':[]};
   }
@@ -36,21 +36,21 @@ SessionData.storeResults =  function(results,scenLabel,stats){
 
   sessionData.scenarios[scenInd] = scenario;
   toStore = JSON.stringify(sessionData);
-  localStorage.setItem('sessionData', toStore);
+  localStorage.setItem('sessionDataEthiopia', toStore);
   return sessionData;
 
 }
 
 SessionData.storeStats = function(stats){
-  var sessionData = JSON.parse(localStorage.getItem('sessionData')); //retrieve session dat from storage.
+  var sessionData = JSON.parse(localStorage.getItem('sessionDataEthiopia')); //retrieve session dat from storage.
   var scenInd = ScenarioIndex.getIndex();
   sessionData.scenarios[scenInd]['stats'] = stats;
   toStore = JSON.stringify(sessionData);
-  localStorage.setItem('sessionData', toStore);
+  localStorage.setItem('sessionDataEthiopia', toStore);
 }
 
 SessionData.createNewSession = function(){
-  var sessionData = JSON.parse(localStorage.getItem('sessionData'));
+  var sessionData = JSON.parse(localStorage.getItem('sessionDataEthiopia'));
   if ( (sessionData == null) || (sessionData.scenarios == null) ){
     sessionData = {'scenarios':[]};
   }
@@ -64,19 +64,19 @@ SessionData.createNewSession = function(){
 
 SessionData.deleteSession = function(){
   //delete session data to start fresh when page loads.
-  localStorage.setItem('sessionData', null);
+  localStorage.setItem('sessionDataEthiopia', null);
 }
 
 
 
 SessionData.retrieveSession = function(){
-  var ses = JSON.parse(localStorage.getItem('sessionData'));
+  var ses = JSON.parse(localStorage.getItem('sessionDataEthiopia'));
   if (ses && ses.scenarios && ses.scenarios[0] && ses.scenarios[0].label){
     return ses
   } else {
     ses = {'scenarios':[]};
     toStore = JSON.stringify(ses);
-    localStorage.setItem('sessionData', toStore);
+    localStorage.setItem('sessionDataEthiopia', toStore);
     return ses
   }
 }
@@ -144,7 +144,7 @@ SessionData.deleteScenario = function(){
   var ses = SessionData.retrieveSession();
   ses.scenarios.splice(ind,1);
   var toStore = JSON.stringify(ses);
-  localStorage.setItem('sessionData', toStore);
+  localStorage.setItem('sessionDataEthiopia', toStore);
   ScenarioIndex.setIndex(0);
 
 }

@@ -194,7 +194,7 @@ function scenarioRunStats(){
   var scenInd = ScenarioIndex.getIndex();
   var dfrd = $.Deferred();
   var ts = [],dyrs=[],ryrs=[];
-  d3.json('./assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaSimplify.json',function(err,data){
 
       var ts=[];
       var dyrs = [];
@@ -418,7 +418,7 @@ function drawMapBoxPlot(){
 function createTimeLine(){
   var tooltip = d3.select('#tooltip');
   var res = d3.select('#map-outputs').select('h4');
-  d3.json('./assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaSimplify.json',function(err,data){
     d3.select('#slider1').call(d3.slider().axis(true).min(2016).max(2016+19).step(1)
                                  .on("slide",function(evt,value){
                                    value = value - 2016;
@@ -549,7 +549,7 @@ function reductionStatsCalc(data,cLow,cMedium,cHigh,coverage){
 }
 
 var quantize = d3.scale.quantize()
-      .domain([0, 0.15])
+      .domain([0, 0.04])
       .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
 
 var quantizeDoses = d3.scale.quantize()
@@ -624,7 +624,7 @@ function runSimClick(){
 }
 
 function drawMap() {
-  d3.json('./assets/EthiopiaNew.json',function(err,data){
+  d3.json('./assets/EthiopiaSimplify.json',function(err,data){
     d3.selectAll('path')
       .attr("class", function(d,i) {
         if(i<glob_prevs.length){
@@ -660,6 +660,7 @@ function fixInput(fix_input){
     $('#insecticideCoverage').slider('disable');
     $('#Microfilaricide').slider('disable');
     $('#Macrofilaricide').slider('disable');
+    $('#sysAdherence').slider('disable');
     $('#run_scenario').hide();
     $('input:radio[name=mdaSixMonths]').attr('disabled',true);
     $('input:radio[name=mdaRegimenRadios]').attr('disabled',true);
@@ -670,6 +671,7 @@ function fixInput(fix_input){
     $('#insecticideCoverage').slider('enable');
     $('#Microfilaricide').slider('enable');
     $('#Macrofilaricide').slider('enable');
+    $('#sysAdherence').slider('enable');
     $('#run_scenario').show();
     $('input:radio[name=mdaSixMonths]').attr('disabled',false);
     $('input:radio[name=mdaRegimenRadios]').attr('disabled',false);
@@ -693,6 +695,7 @@ function setmodelParams(fixInput){
   $("#inputMDARounds").val(ps.mda);
   $('#MDACoverage').slider('setValue', Number(ps.coverage));
   $('#bedNetCoverage').slider('setValue',Number(ps.covN));
+  $('#sysAdherence').val(ps.rho);
   $('#insecticideCoverage').slider('setValue', Number(ps.v_to_hR));
   $('input:radio[name=mdaSixMonths]').filter('[value='+ps.mdaSixMonths +']').prop('checked', true);
   $('input:radio[name=mdaRegimenRadios]').filter('[value='+ps.mdaRegimen +']').prop('checked', true);
@@ -701,6 +704,7 @@ function setmodelParams(fixInput){
   return {"mda" : $("#inputMDARounds").val(), "mdaSixMonths" : $("input:radio[name=mdaSixMonths]:checked").val(),
       "endemicity" : $('#endemicity').val(), "coverage": $("#MDACoverage").val(),
       "covN" : $('#bedNetCoverage').val(), "v_to_hR" : $('#insecticideCoverage').val(),
+      "rho" : $('#sysAdherence').val(),
       "vecCap" : $('#vectorialCapacity').val(), "vecComp" : $('#vectorialCompetence').val(),
       "vecD" : $('#vectorialDeathRate').val(), "mdaRegimen" : $("input[name=mdaRegimenRadios]:checked").val(),
       "sysComp" : $('#sysAdherence').val(), "rhoBComp" : $('#brMda').val(), "rhoCN"  : $('#bedNetMda').val(),
@@ -739,7 +743,7 @@ $(document).ready(function(){
 
 
   queue()
-      .defer(d3.json, "./assets/EthiopiaNew.json") //ETH_IUs.json
+      .defer(d3.json, "./assets/EthiopiaSimplify.json") //ETH_IUs.json
       .defer(d3.csv, "./assets/ETH_prev.csv")
       .await(ready);
 

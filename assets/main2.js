@@ -13,7 +13,7 @@
             zeroline: true
           }
         };
-      
+
 
        $(document).ready(function() {
 
@@ -45,10 +45,10 @@
             $('#mda-table-box .alert').addClass('alert-success')
                       .append('<strong> Success! </strong> MDA parameters set. See settings -> MDA tab for details.');
           }
-          
+
         });
-         
-         
+
+
          $("#test-data").click(function(){
             paramSummary();
             $('#pleaseWaitDialog').modal('show');
@@ -56,7 +56,7 @@
               $('#model #multiSimLoading').show();
               multiSimCompute();
             }else{
-         
+
                   setInputParams();
                   var m = new Model(800);
                   m.evolveAndSaves(120.0);
@@ -90,7 +90,7 @@
                   //m.Ms.unshift('mf_burden');
                   //m.Ls.unshift('L3');
                   //m.ts.unshift('tx');
-                  
+
                   $('#pleaseWaitDialog').modal('hide');
                   /*c3.generate({
                       bindto: '#chart',
@@ -99,7 +99,7 @@
                           worm_burden: 'tx',
                           mf_burden: 'tx',
                           L3: 'tx'
-                          
+
                         },
                         columns: [
                           m.ts,
@@ -131,18 +131,18 @@
                       tooltip: {
                         format: {
                           title: function (d) { return 'Year ' + d; }
-           
+
 //            value: d3.format(',') // apply this format to both y and y2
                         }
                       },
                       type: 'spline'
                   });
         */
-              
+
             }
           });
          $('#reset-rounds').click(function(){
-          
+
             Plotly.newPlot('boxplotChart',[]);
             roundsScenarioCounter = 1;
             $('#rounds-scenario-accordion').html('');
@@ -153,19 +153,19 @@
           $('#rounds-progress-bar-bar').css('width', 100+'%').attr('aria-valuenow', 100);
           $('#rounds-progress-bar').css('width','0%'); //this is a hack, but seems to work.
           setInputParams();
-          params.nMDA = 40; //max number of mda rounds even if doing it six monthly. 
+          params.nMDA = 40; //max number of mda rounds even if doing it six monthly.
           var maxN = $('#roundSims').val();
           var y0 = [];
           var progression = 0;
 
-          var progress = setInterval(function() 
+          var progress = setInterval(function()
           {
-            
+
             $('#rounds-progress-bar').css('width',Number(progression*100/maxN)+'%');
             var m = new Model(800);
             m.evolveAndSaves(120.0);
-            y0.push(m.nRounds());  
-            $('#roundsTest').html(progression*100/maxN + '%');            
+            y0.push(m.nRounds());
+            $('#roundsTest').html(progression*100/maxN + '%');
             if(progression == maxN) {
               $('#rounds-progress-bar').hide();
               $('#roundsTest').hide();
@@ -208,12 +208,12 @@
                                                                               .attr('aria-controls','collapse'+roundsScenarioCounter)
                                                                               .html('Scenario '+roundsScenarioCounter);
           $('#rounds-scenario-accordion #collapseOne').attr('id','collapse'+roundsScenarioCounter);
-          $('#collapse'+roundsScenarioCounter).attr('aria-labelledby','heading'+roundsScenarioCounter);                                                                       
+          $('#collapse'+roundsScenarioCounter).attr('aria-labelledby','heading'+roundsScenarioCounter);
           $('#collapse'+roundsScenarioCounter+' .panel-body').html(paramSummaryText(true));
 
-          
+
                     /*for(var i=0; i<10; i++){
-            
+
             var m = new Model(800);
             m.evolveAndSaves(120.0);
             y0.push(m.nRounds());
@@ -228,10 +228,10 @@
               ,1000);
           }
           */
-          
+
 
          });
-         
+
          $('#home a').click(function (e) {
             e.preventDefault();
             $(this).tab('show');
@@ -270,14 +270,14 @@
           $('#plus').click(function(){
             var a = $("<div role='tabpanel' class='tab-pane' id='model" + tabCounter + "'></div>");
             var content = $('#new-tab').html();
-            $('.tab-content').append(a); 
+            $('.tab-content').append(a);
             $('div.tab-pane#model'+tabCounter).html(content);
             var b = $("<li role='presentation' "+tabCounter+"><a href='#model" + tabCounter + "' aria-controls='model' role='tab' data-toggle='tab'><button class='close closeTab' type='button' >x</button>Scenario " + tabCounter + " </a></li>");
-            $('#nav-tabs li:last').prev().after(b); 
+            $('#nav-tabs li:last').prev().after(b);
             $('#model'+ tabCounter +' #plotlyChart').attr('id', 'plotlyChart' + tabCounter);
-            $('#model'+ tabCounter +' #chart_mf').attr('id','model_'+ tabCounter +'_chart_mf'); 
-            $('#model'+ tabCounter +' #chart_wb').attr('id','model_'+ tabCounter +'_chart_wb'); 
-            $('#model'+ tabCounter +' #chart_L3').attr('id','model_'+ tabCounter +'_chart_L3'); 
+            $('#model'+ tabCounter +' #chart_mf').attr('id','model_'+ tabCounter +'_chart_mf');
+            $('#model'+ tabCounter +' #chart_wb').attr('id','model_'+ tabCounter +'_chart_wb');
+            $('#model'+ tabCounter +' #chart_L3').attr('id','model_'+ tabCounter +'_chart_L3');
             $('#model'+ tabCounter +' #multiSim').slider();
 
 
@@ -289,10 +289,10 @@
             $('#model'+ tabCounter +' #mutliSimCheckBox').bind('click',function(){
 
               var d = $(this).data()['tabIndex'];
-              toggle('#model'+ d + ' .multiSimGroup', this); 
+              toggle('#model'+ d + ' .multiSimGroup', this);
               toggleOff('#model'+ d + ' .singleSimGroup',this);
             });
-            
+
             $( '#model'+ tabCounter + ' #test-data' ).data( "tabIndex", tabCounter );
             $('#model'+ tabCounter + ' #test-data').bind('click',function(){
               var d = $(this).data();
@@ -317,7 +317,7 @@
           });
 
           $('#regimen-radio').bind('click', function(){
-            
+
             if ($("input[name=mdaRegimenRadios]:checked").val()==5){
               $('#custom-regimen-sliders').show();
 
@@ -331,12 +331,13 @@
 
           $('#Microfilaricide').slider({});
 
-          $('#sysAdherence').slider({});
 
           $('#brMda').slider({});
 
+          $('#sysAdherence').slider({});
+
           $('#bedNetMda').slider({});
-          
+
           $('#endemicity').slider({
             formatter: function(value) {
               return value + '%';
@@ -394,10 +395,10 @@
       }
 
       function modelParams(){
-        return {"mda" : $("#inputMDARounds").val(), "mdaSixMonths" : $("input:radio[name=mdaSixMonths]:checked").val(), 
+        return {"mda" : $("#inputMDARounds").val(), "mdaSixMonths" : $("input:radio[name=mdaSixMonths]:checked").val(),
             "endemicity" : $('#endemicity').val(), "coverage": $("#MDACoverage").val(),
-            "covN" : $('#bedNetCoverage').val(), "v_to_hR" : $('#insecticideCoverage').val(), 
-            "vecCap" : $('#vectorialCapacity').val(), "vecComp" : $('#vectorialCompetence').val(), 
+            "covN" : $('#bedNetCoverage').val(), "v_to_hR" : $('#insecticideCoverage').val(),
+            "rho" : $('#sysAdherence').val(), "vecCap" : $('#vectorialCapacity').val(), "vecComp" : $('#vectorialCompetence').val(),
             "vecD" : $('#vectorialDeathRate').val(), "mdaRegimen" : $("input[name=mdaRegimenRadios]:checked").val(),
             "sysComp" : $('#sysAdherence').val(), "rhoBComp" : $('#brMda').val(), "rhoCN"  : $('#bedNetMda').val(),
             "species" : $("input[name=speciesRadios]:checked").val(),
@@ -429,16 +430,16 @@
         if (tabIndex===undefined) tabIndex='';
         str = paramSummaryText(false);
         $('#model'+tabIndex+' #parameters-summary').text(str);
-        
+
       }
       function paramSummaryText(noRounds){
         noRounds = typeof noRounds !== 'undefined' ? noRounds : false;
-        var params = modelParams(); 
+        var params = modelParams();
         var str = 'Parameters used in this scenario are : ';
         if(noRounds===false){
           str += (params['mda'])? params['mda'] + ' rounds ' : 'no MDA rounds ';
           if (params['mda']) str += 'of ' + mdaDrugName(params['mdaRegimen']) + ' MDA ';
-          
+
           if (params['mda']) str += (params['mdaSixMonths']=="True")? 'occuring every six months ' : 'occuring annually ';
           str += (params['mda'])? 'with ' + params['coverage'] + '% coverage. ' : '. ';
         } else {
@@ -447,14 +448,14 @@
           str +=  'with ' + params['coverage'] + '% coverage. ';
         }
         str += 'Prevalence of microfilariaemia is on average ' + params['endemicity'] + '%. ';
-        
+
         str += 'Bed-net coverage is ' + params['covN'] + '% and ';
         str += 'insecticide coverage is ' + params['v_to_hR'] + '%. ';
         //str += 'Vectorial capacity is ' + params['vecCap'] + ', ';
         //str += 'vector competence is ' + params['vecComp'] + ' and ';
         //str += 'vector death rate is ' + params['vecD'] + ' relative to baseline.';
         return str;
-        
+
       }
 
       function multiSimCompute(tabIndex){
@@ -462,14 +463,14 @@
                   setInputParams();
                   var m = new Model(800);
                   m.evolveAndSaves(120.0);
-                  
-                  
+
+
                   $("#model"+ tabIndex + " #test-data-result").html(m);
                   //m.Ws.unshift('worm_burden');
                   //m.Ms.unshift('mf_burden');
                   //m.Ls.unshift('L3');
                   //m.ts.unshift('x');
-                  
+
                   $('#pleaseWaitDialog').modal('hide');
                   var firstRunI = Number($('#model'+ tabIndex +' #multiSim').val());
                   $('.progress-bar').css('width', 0+'%').attr('aria-valuenow', 0);
@@ -542,7 +543,7 @@
                       tooltip: {
                         format: {
                           title: function (d) { return 'Year ' + d; }
-           
+
 //            value: d3.format(',') // apply this format to both y and y2
                         }
                       },
@@ -584,7 +585,7 @@
                       tooltip: {
                         format: {
                           title: function (d) { return 'Year ' + d; }
-           
+
 //            value: d3.format(',') // apply this format to both y and y2
                         }
                       },
@@ -626,7 +627,7 @@
                       tooltip: {
                         format: {
                           title: function (d) { return 'Year ' + d; }
-           
+
 //            value: d3.format(',') // apply this format to both y and y2
                         }
                       },
@@ -635,16 +636,16 @@
 */
 
                   addNewSim($('#model'+ tabIndex +' #multiSim').val()-1,tabIndex,firstRunI);
-             
-              
+
+
       }
 
       function addNewSim(i,tabIndex,firstRunI){
         if(tabIndex===undefined) tabIndex='';
         if (i>0){
 
-        
-                    
+
+
                     setInputParams();
                     var m = new Model(800);
                     m.evolveAndSaves(120.0);
@@ -675,8 +676,8 @@
                     m.Ms.unshift('mf_burden'+i);
                     m.Ls.unshift('L3'+i);
                     m.ts.unshift('tx');
-                    
-                    
+
+
                     chartMF.load({
                           columns: [
                             m.Ms
@@ -709,10 +710,10 @@
                     setTimeout(function () {
                         addNewSim(i,tabIndex,firstRunI);
                     },500);
-                    
-                
-                
-          
+
+
+
+
         } else {
           $('#model'+tabIndex+' #multiSimLoading').hide();
         }
@@ -727,8 +728,8 @@
               $('#model'+tabIndex+' #multiSimLoading').show();
               multiSimCompute(tabIndex);
             }else{
-              
-              
+
+
                   setInputParams();
                   var m = new Model(800);
                   m.evolveAndSaves(120.0);
@@ -759,7 +760,7 @@
                   m.Ms.unshift('mf_burden');
                   m.Ls.unshift('L3');
                   m.ts.unshift('tx');
-                  
+
                   $('#pleaseWaitDialog').modal('hide');
                   c3.generate({
                       bindto: '#model'+tabIndex+' #chart',
@@ -768,7 +769,7 @@
                           worm_burden: 'tx',
                           mf_burden: 'tx',
                           L3: 'tx'
-                          
+
                         },
                         columns: [
                           m.ts,
@@ -802,9 +803,7 @@
                       },
                       type: 'spline'
                   }); */
-              
+
             }
 
       }
-
-     

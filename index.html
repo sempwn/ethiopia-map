@@ -70,8 +70,6 @@
     <script src="https://d3js.org/d3.v3.min.js"></script>
     <script src="https://d3js.org/queue.v1.min.js"></script>
     <script src="https://d3js.org/topojson.v1.min.js"></script>
-    <script src="./assets/c3/c3.min.js"></script>
-    <script src="./assets/js/parallel.js"></script>
       <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="./assets/main2.js"></script>
@@ -163,14 +161,6 @@
 
                 </div>
               </div>
-              <div class="col-md-4" style="display: none;">
-                <img src="./assets/img/Tanzania_example_2.png" class="img-responsive" alt="Responsive image">
-                &nbsp;
-                <button type="button" class="btn btn-danger">High</button>
-                <button type="button" class="btn btn-warning">Medium</button>
-                <button type="button" class="btn btn-primary">Low</button>
-              </div>
-
             </div>
           </div>
           <div role="tabpanel" class="tab-pane" id="setting">
@@ -190,14 +180,14 @@
 
                         <div class="radio">
                           <label class="text-center">
-                            <img src="./assets/img/Anopheles.jpg" class="img-responsive img-thumbnail" style="max-width: 250px; max-height: 200px;" alt="Anopheles image">
+
                             <input type="radio" name="speciesRadios" id="optionsRadios1" value="0" checked>
                             Anopheles
                           </label>
                         </div>
                         <div class="radio">
                           <label class="text-center">
-                            <img src="./assets/img/Culex.jpg" class="img-responsive img-thumbnail" style="max-width: 250px; max-height: 200px;" alt="Culex image">
+
                             <input type="radio" name="speciesRadios" id="optionsRadios2" value="1">
                             Culex
                           </label>
@@ -273,14 +263,7 @@
               <div class="col-md-4 col-md-offset-4">
                 <h2 class="text-center">Systematic adherence panel</h2>
                 <form>
-                  <div class="form-group">
-                    <label for="inputMDARounds">Systematic adherence</label>
-                    <div class="input-group">
 
-                      <input id="sysAdherence" data-slider-id='sysAdherenceSlider' type="text" data-slider-min="0" data-slider-max="1.0" data-slider-step="0.1" data-slider-value="0"/>
-
-                    </div>
-                  </div>
 
                   <div class="form-group">
                     <label for="inputMDARounds">Bite-risk adherence correlation</label>
@@ -567,6 +550,17 @@
                           <small class="text-muted">
                             Use sliders to control the total proportion of microfilariae and adult filariae cleared from an individual who has received a dose of the drug. The macrofilaricidal and microfilaricidal effects are assumed to occur immediately after
                             administration.
+                          </small>
+                        </div>
+                        <div class="form-group">
+                          <label for="inputMDARounds">Systematic adherence</label>
+                          <div class="input-group">
+
+                            <input id="sysAdherence" data-slider-id='sysAdherenceSlider' type="text" data-slider-min="0" data-slider-max="1.0" data-slider-step="0.1" data-slider-value="0.2"/>
+
+                          </div>
+                          <small class="text-muted">
+                            Controls how randomly coverage is applied. For 0, coverage is completely random. For 1, the same individuals are always treated.
                           </small>
                         </div>
                       </div>

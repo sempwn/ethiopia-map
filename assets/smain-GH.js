@@ -1930,7 +1930,7 @@ function reductionStatsCalc(data,cLow,cMedium,cHigh,coverage){
 }
 
 var quantize = d3.scale.quantize()
-      .domain([0, 0.04])
+      .domain([0, 0.2])
       .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
 
 var quantizeDoses = d3.scale.quantize()
